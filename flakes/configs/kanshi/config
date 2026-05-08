@@ -1,0 +1,52 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║                    KANSHI CONFIG                              ║
+# ║         Auto-detect & configure monitors                      ║
+# ║                                                               ║
+# ║  kanshi watches for monitor hotplug events and applies        ║
+# ║  the first matching profile automatically.                    ║
+# ║                                                               ║
+# ║  To find your monitor names, run:                             ║
+# ║    wlr-randr                                                  ║
+# ║  or                                                           ║
+# ║    hyprctl monitors                                           ║
+# ║                                                               ║
+# ║  Edit the output names below to match your hardware!          ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ------------------------------------------
+# Profile: Laptop only (no external monitor)
+# ------------------------------------------
+profile {
+	output eDP-1 enable mode 1920x1200 position 0,0 scale 1.0
+}
+
+# ------------------------------------------
+# Profile: Laptop + External monitor (HDMI)
+# External is primary, laptop is on the left
+# ------------------------------------------
+profile {
+	output eDP-1 enable mode 1920x1200 position 0,0 scale 1.0
+	output HDMI-A-1 enable mode 2560x1440 position 1920,0 scale 1.0
+}
+
+# ------------------------------------------
+# Profile: Laptop + External monitor (DP/USB-C)
+# External is primary, laptop is on the left
+# ------------------------------------------
+profile {
+	output eDP-1 enable mode 1920x1200 position 0,0 scale 1.0
+	output DP-1 enable mode 2560x1440 position 1920,0 scale 1.0
+}
+
+# ------------------------------------------
+# Profile: External monitor only (lid closed)
+# ------------------------------------------
+profile {
+	output eDP-1 disable
+	output HDMI-A-1 enable mode 2560x1440 position 0,0 scale 1.0
+}
+
+profile {
+	output eDP-1 disable
+	output DP-1 enable mode 2560x1440 position 0,0 scale 1.0
+}

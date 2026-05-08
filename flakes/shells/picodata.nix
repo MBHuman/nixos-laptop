@@ -53,6 +53,8 @@ pkgs.mkShell {
     # Performance profiling
     linuxPackages_latest.perf
     flamegraph
+
+    
   ];
 
   shellHook = ''
@@ -74,6 +76,13 @@ pkgs.mkShell {
     if ! rustup default 2>/dev/null | grep -q .; then
       echo "⚙ Installing stable Rust toolchain..."
       rustup default stable
+    fi
+
+    # Install picodata-pike via cargo if missing or wrong version
+    PIKE_VERSION="5.0.0"
+    if ! command -v pike &>/dev/null || [[ "$(pike --version 2>/dev/null)" != *"$PIKE_VERSION"* ]]; then
+      echo "⚙ Installing picodata-pike@$PIKE_VERSION via cargo..."
+      cargo install picodata-pike --version "$PIKE_VERSION"
     fi
 
     # Enable Corepack with writable home (Nix store is read-only)

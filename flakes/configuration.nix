@@ -126,12 +126,31 @@
   ];
 
   # ==========================================
-  # 7. HYPRLAND (from nixpkgs, pre-built binary)
+  # 7. TOUCHPAD (macOS-like experience)
+  # ==========================================
+  services.libinput = {
+    enable = true;
+    touchpad = {
+      naturalScrolling = true;       # macOS-style scroll direction
+      tapping = true;                # Tap to click (like macOS)
+      tappingDragLock = false;       # Don't lock drag (macOS doesn't)
+      clickMethod = "clickfinger";   # 2-finger=right, 3-finger=middle (macOS-style, no bottom zones)
+      disableWhileTyping = true;     # Prevent accidental touches while typing
+      middleEmulation = false;       # No middle-click emulation (use 3-finger tap)
+      scrollMethod = "twofinger";    # Two-finger scroll (macOS default)
+    };
+  };
+
+  # ==========================================
+  # 7a. HYPRLAND (from nixpkgs, pre-built binary)
   # ==========================================
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
   };
+
+  # Expose hyprexpo plugin .so for Hyprland to load at runtime
+  environment.etc."hyprland-plugins/hyprexpo.so".source = "${pkgs.hyprlandPlugins.hyprexpo}/lib/libhyprexpo.so";
 
   # Cursor theme for all sessions
   environment.sessionVariables = {
@@ -163,6 +182,9 @@
 
   # Deploy swappy config (screenshot annotation editor)
   environment.etc."swappy/config".source = ./configs/swappy/config;
+
+  # Deploy kanshi config (automatic monitor profiles)
+  environment.etc."kanshi/config".source = ./configs/kanshi/config;
 
   # Auto-link all configs to user's ~/.config/ on each rebuild
   system.activationScripts.dotfiles-config = ''
@@ -198,6 +220,10 @@
     # Swappy (screenshot annotation)
     mkdir -p /home/mbhuman/.config/swappy
     ln -sf /etc/swappy/config /home/mbhuman/.config/swappy/config
+
+    # Kanshi (monitor auto-config)
+    mkdir -p /home/mbhuman/.config/kanshi
+    ln -sf /etc/kanshi/config /home/mbhuman/.config/kanshi/config
 
     # Screenshots & Recordings dirs
     mkdir -p /home/mbhuman/Screenshots
@@ -265,6 +291,10 @@
     shellAliases = {
       "dev" = "nix develop ~/Documents/github/nixos-laptop";
       "dev-picodata" = "nix develop ~/Documents/github/nixos-laptop#picodata";
+      "dev-python" = "nix develop ~/Documents/github/nixos-laptop#python";
+      "dev-rust" = "nix develop ~/Documents/github/nixos-laptop#rust";
+      "dev-g1" = "nix develop ~/Documents/github/nixos-laptop#g1";
+      "g1" = "nix develop ~/Documents/github/nixos-laptop#g1";
     };
   };
 
@@ -312,6 +342,11 @@
     networkmanagerapplet # Wi-Fi GUI
     blueman         # Bluetooth GUI
 
+    # Monitor management
+    nwg-displays    # GUI monitor settings (resolution, Hz, scale, position, mirror)
+    wlr-randr       # CLI monitor configuration (xrandr for Wayland)
+    kanshi          # Auto-detect & apply monitor profiles on hotplug
+
     # === Editors ===
     vscode
 
@@ -340,6 +375,21 @@
 
     # === CLI Tools ===
     fzf             # Fuzzy finder (used by gswp)
+    just            # Task runner (make alternative)
+
+    # === Python (base) ===
+    python312       # Python interpreter
+    uv              # Fast Python package manager
+    ruff            # Python linter & formatter
+
+    # === Rust (base) ===
+    rustup          # Rust toolchain manager
+    rust-analyzer   # Rust LSP
+
+    # === Other =========
+    # Environment management
+    direnv
+    nix-direnv
   ];
 
   # ==========================================

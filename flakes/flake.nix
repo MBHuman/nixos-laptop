@@ -19,10 +19,17 @@
     };
 
     # === Dev Shells ===
-    # Usage: nix develop .#picodata
+    # Usage:
+    #   nix develop .#picodata
+    #   nix develop .#python
+    #   nix develop .#rust
+    #   nix develop .#g1        (Python + Rust combined)
     devShells.${system} = {
-      picodata = import ./shells/picodata.nix { inherit pkgs; };
-      default = self.devShells.${system}.picodata;
+      picodata    = import ./shells/picodata.nix    { inherit pkgs; };
+      python      = import ./shells/python.nix      { inherit pkgs; };
+      rust        = import ./shells/rust.nix        { inherit pkgs; };
+      g1 = import ./shells/g1.nix { inherit pkgs; };
+      default     = self.devShells.${system}.picodata;
     };
   };
 }
