@@ -75,7 +75,9 @@
   # 6. FONTS (Nerd Fonts required for agnoster theme)
   # ==========================================
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "Meslo" "FiraCode" "JetBrainsMono" ]; })
+    nerd-fonts.meslo-lg
+    nerd-fonts.fira-code
+    nerd-fonts.jetbrains-mono
   ];
 
   # ==========================================
