@@ -37,6 +37,7 @@
   # ==========================================
   # 4. NETWORKING & BLUETOOTH
   # ==========================================
+  networking.hostId = "a1b2c3d4"; # Required for ZFS support (unique machine ID)
   networking.networkmanager.enable = true;
   networking.hostName = "honor"; # Define your hostname
   hardware.bluetooth.enable = true;
@@ -213,6 +214,7 @@
     curl
     wget
     killall
+    htop
 
     # Hyprland essentials
     waybar          # Status bar
