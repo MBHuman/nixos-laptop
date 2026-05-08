@@ -75,9 +75,7 @@
   # 6. FONTS (Nerd Fonts required for agnoster theme)
   # ==========================================
   fonts.packages = with pkgs; [
-    nerd-fonts.meslo-lg
-    nerd-fonts.fira-code
-    nerd-fonts.jetbrains-mono
+    (nerdfonts.override { fonts = [ "Meslo" "FiraCode" "JetBrainsMono" ]; })
   ];
 
   # ==========================================
@@ -97,7 +95,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
         user = "greeter";
       };
     };
@@ -155,7 +153,7 @@
     waybar          # Status bar
     dunst           # Notifications
     kitty           # Terminal emulator
-    rofi            # App launcher (Wayland support built-in)
+    rofi-wayland    # App launcher
     nautilus        # File manager
 
     # Wayland utilities
