@@ -1,0 +1,20 @@
+# NixOS Laptop .gitignore
+
+# WireGuard private keys & configs with secrets
+*.private
+*.key
+wg0.conf
+
+# Result symlinks from nix builds
+result
+result-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
