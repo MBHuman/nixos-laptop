@@ -98,7 +98,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
         user = "greeter";
       };
     };
@@ -156,7 +156,7 @@
     waybar          # Status bar
     dunst           # Notifications
     kitty           # Terminal emulator
-    rofi-wayland    # App launcher
+    rofi            # App launcher (Wayland support built-in)
     nautilus        # File manager
 
     # Wayland utilities
