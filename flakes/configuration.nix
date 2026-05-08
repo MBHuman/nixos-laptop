@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, ... }:
 
 {
   imports = [ ./hardware-configuration.nix ]; # We will link this in Step 5!
@@ -81,14 +81,11 @@
   ];
 
   # ==========================================
-  # 7. HYPRLAND (from flake input)
+  # 7. HYPRLAND (from nixpkgs, pre-built binary)
   # ==========================================
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
-    # Use the Hyprland package from the flake input (latest)
-    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
 
   # Required for Hyprland to function properly (login, audio auth, etc.)
