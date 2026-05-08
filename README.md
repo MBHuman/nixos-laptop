@@ -6,12 +6,15 @@ Flake-based NixOS configuration for **Honor MagicBook X14 Pro** with Intel Arc G
 
 ```
 flakes/
-├── flake.nix              # Flake inputs & outputs (Hyprland, nixpkgs, devShells)
+├── flake.nix              # Flake inputs & outputs (nixpkgs, devShells)
 ├── configuration.nix      # Main system configuration
+├── hyprland.conf          # Hyprland window manager config (auto-deployed)
 ├── wireguard.nix          # WireGuard VPN template (fill in & import when ready)
 ├── shells/
 │   └── picodata.nix       # Picodata dev shell (Rust, Python, Node.js)
 └── hardware-configuration.nix  # Auto-generated (create on the laptop!)
+docs/
+└── hyprland-guide.md      # Hyprland user guide (keybindings, tips)
 ```
 
 ## What's Included
@@ -21,7 +24,7 @@ flakes/
 | **Boot** | systemd-boot, latest kernel (for Intel Arc) |
 | **GPU** | Intel Arc drivers, mesa, VA-API |
 | **Audio** | PipeWire ( PulseAudio compatible ) |
-| **Desktop** | Hyprland (from flake, latest) + waybar, kitty, rofi, dunst |
+| **Desktop** | Hyprland (from nixpkgs) + waybar, kitty, rofi, dunst |
 | **Login** | greetd + tuigreet |
 | **Shell** | ZSH + Oh My Zsh (agnoster theme, autosuggestions, syntax highlighting) |
 | **Editors** | Neovim, VS Code |
@@ -141,6 +144,10 @@ sudo systemctl start openvpn-your-config
 ## Adding packages
 
 Edit `environment.systemPackages` in `configuration.nix`, then rebuild.
+
+## Documentation
+
+- 📖 [Hyprland — Руководство пользователя](docs/hyprland-guide.md) — хоткеи, навигация, скриншоты, устранение неполадок
 
 ## Updating
 
