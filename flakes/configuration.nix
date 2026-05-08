@@ -42,6 +42,11 @@
   hardware.bluetooth.enable = true;
 
   # ==========================================
+  # 4a. SSH AGENT
+  # ==========================================
+  programs.ssh.startAgent = true;
+
+  # ==========================================
   # 4a. AUTO-MOUNT USB DRIVES & DISKS
   # ==========================================
   services.udisks2.enable = true;   # Auto-mount daemon
@@ -81,14 +86,35 @@
   # };
 
   # ==========================================
-  # 5. AUDIO (PipeWire)
+  # 5. AUDIO (PipeWire — full support for speakers, mic, Bluetooth)
   # ==========================================
+  hardware.enableAllFirmware = true;
+
+  security.rtkit.enable = true;  # Real-time scheduling for PipeWire (no audio cracks/stutter)
+
   services.pipewire = {
     enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
+    alsa = {
+      enable = true;
+      support32Bit = true;
+    };
+    pulse.enable = true;     # PulseAudio compatibility (legacy apps)
+    jack.enable = true;      # JACK compatibility (pro audio apps)
+    wireplumber.enable = true;  # Session manager — auto-detects & configures mic/headphones
   };
+
+  # PulseAudio daemon — disabled, PipeWire handles everything
+  hardware.pulseaudio.enable = false;
+
+  # ==========================================
+  # 5a. WEBCAM / VIDEO CAPTURE
+  # ==========================================
+  # Most UVC webcams (and built-in laptop cameras) work out of the box via the
+  # uvcvideo kernel module (auto-loaded). xhci_pci is already in initrd
+  # (hardware-configuration.nix), so USB 3.0 webcams are covered.
+  #
+  # User is added to 'video', 'input', 'plugdev' groups (see section 8)
+  # for webcam and microphone device access.
 
   # ==========================================
   # 6. FONTS (Nerd Fonts required for agnoster theme)
@@ -107,6 +133,20 @@
     xwayland.enable = true;
   };
 
+  # Cursor theme for all sessions
+  environment.sessionVariables = {
+    XCURSOR_SIZE = "24";
+    XCURSOR_THEME = "Bibata-Modern-Classic";
+    GTK_THEME = "Adwaita:dark";       # Dark GTK theme
+    QT_STYLE_OVERRIDE = "Adwaita-Dark"; # Dark Qt theme
+  };
+
+  # GNOME Sushi — quick file preview in Nautilus (press Space, like macOS Quick Look)
+  services.gnome.sushi.enable = true;
+
+  # Tumbler — thumbnailing service for Nautilus (video, image, PDF previews)
+  services.tumbler.enable = true;
+
   # Deploy Hyprland config from flake repo to /etc/hyprland.conf
   environment.etc."hyprland.conf".source = ./hyprland.conf;
 
@@ -115,9 +155,14 @@
   environment.etc."waybar/style.css".source = ./themes/waybar/style.css;
   environment.etc."dunst/dunstrc".source = ./themes/dunst/dunstrc;
   environment.etc."kitty/kitty.conf".source = ./themes/kitty/kitty.conf;
+  environment.etc."gtk-3.0/settings.ini".source = ./themes/gtk-3.0/settings.ini;
+  environment.etc."gtk-4.0/settings.ini".source = ./themes/gtk-4.0/settings.ini;
 
   # Deploy editor configs
   environment.etc."vimrc".source = ./configs/vimrc;
+
+  # Deploy swappy config (screenshot annotation editor)
+  environment.etc."swappy/config".source = ./configs/swappy/config;
 
   # Auto-link all configs to user's ~/.config/ on each rebuild
   system.activationScripts.dotfiles-config = ''
@@ -138,17 +183,28 @@
     mkdir -p /home/mbhuman/.config/kitty
     ln -sf /etc/kitty/kitty.conf /home/mbhuman/.config/kitty/kitty.conf
 
+    # GTK dark theme
+    mkdir -p /home/mbhuman/.config/gtk-3.0
+    ln -sf /etc/gtk-3.0/settings.ini /home/mbhuman/.config/gtk-3.0/settings.ini
+    mkdir -p /home/mbhuman/.config/gtk-4.0
+    ln -sf /etc/gtk-4.0/settings.ini /home/mbhuman/.config/gtk-4.0/settings.ini
+
     # Vim — link to home dir (vim looks for ~/.vimrc)
     ln -sf /etc/vimrc /home/mbhuman/.vimrc
     # Neovim — also use the same config
     mkdir -p /home/mbhuman/.config/nvim
     ln -sf /etc/vimrc /home/mbhuman/.config/nvim/init.vim
 
-    # Screenshots dir
+    # Swappy (screenshot annotation)
+    mkdir -p /home/mbhuman/.config/swappy
+    ln -sf /etc/swappy/config /home/mbhuman/.config/swappy/config
+
+    # Screenshots & Recordings dirs
     mkdir -p /home/mbhuman/Screenshots
+    mkdir -p /home/mbhuman/Recordings
 
     # Fix ownership
-    chown -R mbhuman:users /home/mbhuman/.config /home/mbhuman/.vimrc /home/mbhuman/Screenshots
+    chown -R mbhuman:users /home/mbhuman/.config /home/mbhuman/.vimrc /home/mbhuman/Screenshots /home/mbhuman/Recordings
   '';
 
   # Required for Hyprland to function properly (login, audio auth, etc.)
@@ -171,7 +227,12 @@
   # ==========================================
   users.users.mbhuman = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" "plugdev" "docker" ];
+    # video   — webcam / GPU acceleration
+    # audio   — PipeWire / ALSA audio access
+    # input   — microphone input devices
+    # plugdev — hot-plug devices (USB webcams, etc.)
+    # docker  — run Docker without sudo
     shell = pkgs.zsh;
     # initialPassword = "temp_password"; # Uncomment to set a temporary password via the flake
   };
@@ -201,12 +262,20 @@
       "HIST_IGNORE_SPACE"
       "SHARE_HISTORY"
     ];
+    shellAliases = {
+      "dev" = "nix develop ~/Documents/github/nixos-laptop";
+      "dev-picodata" = "nix develop ~/Documents/github/nixos-laptop#picodata";
+    };
   };
 
   # ==========================================
   # 10. PACKAGES
   # ==========================================
   environment.systemPackages = with pkgs; [
+    # Custom scripts
+    (writeShellScriptBin "gswp" (builtins.readFile ./scripts/gswp.sh))
+    (writeShellScriptBin "gcnf" (builtins.readFile ./scripts/gcnf.sh))
+
     vim
     neovim
     git
@@ -218,18 +287,28 @@
     # Hyprland essentials
     waybar          # Status bar
     dunst           # Notifications
+    libnotify       # notify-send CLI (used by dunst)
     kitty           # Terminal emulator
     rofi-wayland    # App launcher
     nautilus        # File manager
+    jq              # JSON parser (for window screenshots)
+
+    # Cursor & GTK themes
+    bibata-cursors
+    gnome-themes-extra  # Adwaita-dark GTK theme
+    dconf               # GTK settings backend
 
     # Wayland utilities
     grim            # Screenshot tool
     slurp           # Region selection
+    swappy          # Screenshot annotation editor
     wl-clipboard    # Clipboard manager
     cliphist        # Clipboard history
+    wf-recorder     # Screen recording (Wayland)
     brightnessctl   # Screen brightness keys
-    pamixer         # Volume control
-    pavucontrol     # Audio GUI
+    pamixer         # Volume control (CLI)
+    pavucontrol     # Audio GUI (PulseAudio/PipeWire — control mic & speakers)
+    pwvucontrol     # PipeWire native volume control (more detailed)
     networkmanagerapplet # Wi-Fi GUI
     blueman         # Bluetooth GUI
 
@@ -242,13 +321,84 @@
     # === Messaging ===
     telegram-desktop        # Telegram Desktop
 
+    # === Webcam & Audio Utilities ===
+    v4l-utils              # Video4Linux2 CLI tools (v4l2-ctl — webcam settings/config)
+
+    # === Docker ===
+    docker-compose         # Docker Compose v2 (plugin)
+
     # === VPN ===
     wireguard-tools # wg-quick, wg CLI tools
     openvpn         # Corporate VPN
+
+    # === File Preview & Viewers ===
+    loupe               # Image viewer (GNOME, Wayland native)
+    mpv                 # Video & audio player (minimal, Wayland native)
+    evince              # PDF/document viewer (GNOME, like macOS Preview)
+    file-roller         # Archive manager (GNOME, for tar/zip etc.)
+    ffmpegthumbnailer   # Video thumbnails in Nautilus
+
+    # === CLI Tools ===
+    fzf             # Fuzzy finder (used by gswp)
   ];
+
+  # ==========================================
+  # 10a. DEFAULT APPLICATIONS (MIME types)
+  # ==========================================
+  # Set default apps so Nautilus and other apps open files correctly
+  xdg.mime.defaultApplications = {
+    # Images → Loupe
+    "image/png" = "org.gnome.Loupe.desktop";
+    "image/jpeg" = "org.gnome.Loupe.desktop";
+    "image/gif" = "org.gnome.Loupe.desktop";
+    "image/webp" = "org.gnome.Loupe.desktop";
+    "image/bmp" = "org.gnome.Loupe.desktop";
+    "image/svg+xml" = "org.gnome.Loupe.desktop";
+    "image/tiff" = "org.gnome.Loupe.desktop";
+    "image/avif" = "org.gnome.Loupe.desktop";
+    "image/heif" = "org.gnome.Loupe.desktop";
+
+    # Video → mpv
+    "video/mp4" = "mpv.desktop";
+    "video/mpeg" = "mpv.desktop";
+    "video/webm" = "mpv.desktop";
+    "video/x-matroska" = "mpv.desktop";      # mkv
+    "video/x-msvideo" = "mpv.desktop";       # avi
+    "video/x-flv" = "mpv.desktop";
+    "video/quicktime" = "mpv.desktop";       # mov
+
+    # Audio → mpv
+    "audio/mpeg" = "mpv.desktop";
+    "audio/ogg" = "mpv.desktop";
+    "audio/flac" = "mpv.desktop";
+    "audio/wav" = "mpv.desktop";
+    "audio/aac" = "mpv.desktop";
+
+    # PDF & Documents → Evince
+    "application/pdf" = "org.gnome.Evince.desktop";
+    "application/epub+zip" = "org.gnome.Evince.desktop";
+    "image/x-eps" = "org.gnome.Evince.desktop";
+    "image/x-xcf" = "org.gnome.Loupe.desktop";
+    "application/x-compressed-tar" = "org.gnome.FileRoller.desktop";
+  };
+
+  # ==========================================
+  # XDG DESKTOP PORTAL (screen sharing, file picker)
+  # ==========================================
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+  };
 
   # Allow unfree packages (required for Google Chrome, VS Code)
   nixpkgs.config.allowUnfree = true;
+
+  # ==========================================
+  # 10b. EXTRA PATH (custom binaries)
+  # ==========================================
+  environment.extraInit = ''
+    export PATH="/home/mbhuman/Documents/builds:$PATH"
+  '';
 
   # ==========================================
   # 11. LOCALE & TIMEZONE
@@ -257,7 +407,15 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   # ==========================================
-  # 12. FIRMWARE UPDATES
+  # 12. DOCKER
+  # ==========================================
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = true;   # Start dockerd at boot
+  };
+
+  # ==========================================
+  # 13. FIRMWARE UPDATES
   # ==========================================
   services.fwupd.enable = true;
 

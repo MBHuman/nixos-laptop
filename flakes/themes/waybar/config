@@ -6,7 +6,7 @@
 
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
     "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+    "modules-right": ["pulseaudio", "network", "temperature", "cpu", "memory", "battery", "tray"],
 
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -71,13 +71,21 @@
         "on-click": "nm-connection-editor"
     },
 
+    "temperature": {
+        "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        "format": "󰔏 {temperatureC}°C",
+        "format-critical": "󰔏 {temperatureC}°C",
+        "interval": 2
+    },
+
     "cpu": {
-        "format": "  {usage}%",
+        "format": "󰻠 {usage}%",
         "interval": 2
     },
 
     "memory": {
-        "format": "  {}%",
+        "format": "󰍛 {}%",
         "interval": 2
     },
 
@@ -86,10 +94,10 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{icon}  {capacity}%",
-        "format-charging": "  {capacity}%",
-        "format-plugged": "  {capacity}%",
-        "format-icons": ["", "", "", "", ""],
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰂊 {capacity}%",
+        "format-icons": ["󰁺", "󰁻", "󰁼", "󰂀", "󰁹"],
         "interval": 5
     },
 

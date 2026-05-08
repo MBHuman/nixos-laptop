@@ -91,15 +91,34 @@ Default shell is **zsh** with:
 
 Config is managed by NixOS. For personal customizations, edit `~/.zshrc` after the Oh My Zsh block.
 
+## Kitty — Terminal Shortcuts
+
+Kitty has built-in shortcuts for managing tabs and split windows:
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+Shift+Enter` | New terminal window (split) |
+| `Ctrl+Shift+T` | New tab |
+| `Ctrl+Shift+W` | Close tab / window |
+| `Ctrl+Shift+→ / ←` | Next / previous tab |
+| `Ctrl+Shift+] / [` | Next / previous window (split) |
+| `Ctrl+Shift+1…9` | Go to tab N |
+| `Ctrl+Shift+L` | Change layout (tall, stack, etc.) |
+| `Ctrl+Shift+Alt+] / [` | Move focus between splits |
+
+These are Kitty defaults — no config changes needed.
+
 ## Dev Shells
 
 ### Picodata (default)
 
 ```bash
-# Enter the Picodata dev environment
-nix develop
+# From any directory (after rebuild):
+dev              # default shell (picodata)
+dev-picodata     # explicitly picodata
 
-# Or explicitly:
+# Or from the flakes directory:
+nix develop
 nix develop .#picodata
 ```
 
@@ -109,7 +128,8 @@ Includes: Rust (via rustup), Python 3.11, Node.js 20, Yarn, CMake, GCC, and all 
 
 1. Create `flakes/shells/your-shell.nix`
 2. Add it to `devShells` in `flake.nix`
-3. Run: `nix develop .#your-shell`
+3. Add an alias in `shellAliases` in `configuration.nix`
+4. Run: `dev-your-shell`
 
 ## WireGuard VPN Setup
 

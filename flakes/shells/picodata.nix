@@ -36,7 +36,6 @@ pkgs.mkShell {
 
     # Web UI build
     nodejs_20
-    yarn
 
     # Python for integration tests
     pythonEnv
@@ -52,7 +51,7 @@ pkgs.mkShell {
     openldap
 
     # Performance profiling
-    perf
+    linuxPackages_latest.perf
     flamegraph
   ];
 
@@ -66,8 +65,26 @@ pkgs.mkShell {
     export RUSTFLAGS="-L ${pkgs.libxcrypt}/lib -L ${pkgs.icu}/lib $RUSTFLAGS"
     export PKG_CONFIG_PATH="${pkgs.icu.dev}/lib/pkgconfig:$PKG_CONFIG_PATH"
 
+    # Source cargo environment
+    if [ -f "$CARGO_HOME/env" ]; then
+      . "$CARGO_HOME/env"
+    fi
+
+    # Install and set default Rust toolchain if not configured
+    if ! rustup default 2>/dev/null | grep -q .; then
+      echo "⚙ Installing stable Rust toolchain..."
+      rustup default stable
+    fi
+
+    # Enable Corepack with writable home (Nix store is read-only)
+    export COREPACK_HOME=$HOME/.cache/node/corepack
+    mkdir -p "$COREPACK_HOME"
+    corepack enable --install-directory="$COREPACK_HOME"
+    export PATH="$COREPACK_HOME:$PATH"
+
     echo "▶ Picodata dev environment loaded"
-    echo "   Rust via rustup is available. Run:"
-    echo "       rustup toolchain install stable"
+
+    # Replace bash with zsh to keep Oh My Zsh, agnoster theme, etc.
+    exec ${pkgs.zsh}/bin/zsh
   '';
 }
