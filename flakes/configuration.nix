@@ -37,7 +37,6 @@
   # ==========================================
   # 4. NETWORKING & BLUETOOTH
   # ==========================================
-  networking.hostId = "a1b2c3d4"; # Required for ZFS support (unique machine ID)
   networking.networkmanager.enable = true;
   networking.hostName = "honor"; # Define your hostname
   hardware.bluetooth.enable = true;
@@ -47,19 +46,19 @@
   # ==========================================
   services.udisks2.enable = true;   # Auto-mount daemon
   services.gvfs.enable = true;      # Virtual filesystem (Nautilus integration)
-  boot.supportedFilesystems = [ "ntfs" "exfat" "vfat" "ext4" "btrfs" "xfs" "zfs" "f2fs" "hfsplus" "udf" "cifs" "nfs" ];
+  boot.supportedFilesystems = [ "ntfs" "exfat" "vfat" "ext4" "btrfs" "xfs" "f2fs" "hfsplus" "udf" "cifs" "nfs" ];
   # ntfs    — Windows NTFS
   # exfat   — USB drives, SD cards (cross-platform)
   # vfat    — FAT32 (legacy USB drives)
   # ext4    — Linux standard
   # btrfs   — Linux (snapshots, compression)
   # xfs     — Linux (large storage)
-  # zfs     — Enterprise storage
   # f2fs    — Flash-optimized (SSD, eMMC)
   # hfsplus — macOS HFS+
   # udf     — optical discs (DVD, Blu-ray)
   # cifs    — Windows network shares (SMB)
   # nfs     — Linux network shares
+  # NOTE: ZFS removed — kernel module broken on linux 6.18.2
 
   # ==========================================
   # 4b. WIREGUARD VPN
