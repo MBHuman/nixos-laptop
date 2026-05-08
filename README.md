@@ -10,6 +10,14 @@ flakes/
 ├── configuration.nix      # Main system configuration
 ├── hyprland.conf          # Hyprland window manager config (auto-deployed)
 ├── wireguard.nix          # WireGuard VPN template (fill in & import when ready)
+├── themes/
+│   ├── waybar/
+│   │   ├── config         # Waybar modules layout
+│   │   └── style.css      # Catppuccin Mocha theme for waybar
+│   ├── dunst/
+│   │   └── dunstrc        # Notification daemon config (Catppuccin Mocha)
+│   └── kitty/
+│       └── kitty.conf     # Terminal config + Catppuccin Mocha colors
 ├── shells/
 │   └── picodata.nix       # Picodata dev shell (Rust, Python, Node.js)
 └── hardware-configuration.nix  # Auto-generated (create on the laptop!)
@@ -25,6 +33,7 @@ docs/
 | **GPU** | Intel Arc drivers, mesa, VA-API |
 | **Audio** | PipeWire ( PulseAudio compatible ) |
 | **Desktop** | Hyprland (from nixpkgs) + waybar, kitty, rofi, dunst |
+| **Theme** | Catppuccin Mocha (Hyprland, Waybar, Dunst, Kitty) |
 | **Login** | greetd + tuigreet |
 | **Shell** | ZSH + Oh My Zsh (agnoster theme, autosuggestions, syntax highlighting) |
 | **Editors** | Neovim, VS Code |

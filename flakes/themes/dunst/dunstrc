@@ -1,0 +1,77 @@
+[global]
+    frame_color = "#cba6f7"
+    separator_color = frame
+    font = JetBrainsMono Nerd Font 12
+
+    # Display
+    monitor = 0
+    follow = mouse
+    width = (300, 500)
+    height = 200
+    origin = top-right
+    offset = (12, 12)
+    scale = 0
+    notification_limit = 10
+
+    # Progress bar
+    progress_bar = true
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+    progress_bar_corner_radius = 4
+
+    # Icons
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 64
+    icon_path = /usr/share/icons/Adwaita/scalable/status/:/usr/share/icons/Adwaita/scalable/devices/
+    icon_theme = Adwaita
+
+    # Window
+    transparency = 10
+    corner_radius = 10
+    gaps_size = 5
+    padding = 12
+    horizontal_padding = 12
+    text_icon_padding = 8
+    sort = yes
+
+    # Text
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    enable_recursive_icon_lookup = true
+
+    # Mouse
+    mouse_left_click = close_current
+    mouse_middle_click = do_action
+    mouse_right_click = close_all
+
+[urgency_low]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    frame_color = "#89b4fa"
+    timeout = 5
+    default_icon = /usr/share/icons/Adwaita/scalable/status/dialog-information-symbolic.svg
+
+[urgency_normal]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    frame_color = "#cba6f7"
+    timeout = 8
+    default_icon = /usr/share/icons/Adwaita/scalable/status/dialog-information-symbolic.svg
+
+[urgency_critical]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    frame_color = "#f38ba8"
+    timeout = 0
+    default_icon = /usr/share/icons/Adwaita/scalable/status/dialog-warning-symbolic.svg

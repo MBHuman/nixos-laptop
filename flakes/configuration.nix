@@ -91,12 +91,36 @@
   # Deploy Hyprland config from flake repo to /etc/hyprland.conf
   environment.etc."hyprland.conf".source = ./hyprland.conf;
 
-  # Auto-link config to user's ~/.config/hypr/ on each rebuild
-  system.activationScripts.hyprland-config = ''
+  # Deploy theme configs (Catppuccin Mocha)
+  environment.etc."waybar/config".source = ./themes/waybar/config;
+  environment.etc."waybar/style.css".source = ./themes/waybar/style.css;
+  environment.etc."dunst/dunstrc".source = ./themes/dunst/dunstrc;
+  environment.etc."kitty/kitty.conf".source = ./themes/kitty/kitty.conf;
+
+  # Auto-link all configs to user's ~/.config/ on each rebuild
+  system.activationScripts.dotfiles-config = ''
+    # Hyprland
     mkdir -p /home/mbhuman/.config/hypr
     ln -sf /etc/hyprland.conf /home/mbhuman/.config/hypr/hyprland.conf
+
+    # Waybar
+    mkdir -p /home/mbhuman/.config/waybar
+    ln -sf /etc/waybar/config /home/mbhuman/.config/waybar/config
+    ln -sf /etc/waybar/style.css /home/mbhuman/.config/waybar/style.css
+
+    # Dunst
+    mkdir -p /home/mbhuman/.config/dunst
+    ln -sf /etc/dunst/dunstrc /home/mbhuman/.config/dunst/dunstrc
+
+    # Kitty
+    mkdir -p /home/mbhuman/.config/kitty
+    ln -sf /etc/kitty/kitty.conf /home/mbhuman/.config/kitty/kitty.conf
+
+    # Screenshots dir
     mkdir -p /home/mbhuman/Screenshots
-    chown mbhuman:users /home/mbhuman/.config/hypr /home/mbhuman/Screenshots
+
+    # Fix ownership
+    chown -R mbhuman:users /home/mbhuman/.config /home/mbhuman/Screenshots
   '';
 
   # Required for Hyprland to function properly (login, audio auth, etc.)
