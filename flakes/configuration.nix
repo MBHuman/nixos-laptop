@@ -97,6 +97,9 @@
   environment.etc."dunst/dunstrc".source = ./themes/dunst/dunstrc;
   environment.etc."kitty/kitty.conf".source = ./themes/kitty/kitty.conf;
 
+  # Deploy editor configs
+  environment.etc."vimrc".source = ./configs/vimrc;
+
   # Auto-link all configs to user's ~/.config/ on each rebuild
   system.activationScripts.dotfiles-config = ''
     # Hyprland
@@ -116,11 +119,17 @@
     mkdir -p /home/mbhuman/.config/kitty
     ln -sf /etc/kitty/kitty.conf /home/mbhuman/.config/kitty/kitty.conf
 
+    # Vim — link to home dir (vim looks for ~/.vimrc)
+    ln -sf /etc/vimrc /home/mbhuman/.vimrc
+    # Neovim — also use the same config
+    mkdir -p /home/mbhuman/.config/nvim
+    ln -sf /etc/vimrc /home/mbhuman/.config/nvim/init.vim
+
     # Screenshots dir
     mkdir -p /home/mbhuman/Screenshots
 
     # Fix ownership
-    chown -R mbhuman:users /home/mbhuman/.config /home/mbhuman/Screenshots
+    chown -R mbhuman:users /home/mbhuman/.config /home/mbhuman/.vimrc /home/mbhuman/Screenshots
   '';
 
   # Required for Hyprland to function properly (login, audio auth, etc.)
