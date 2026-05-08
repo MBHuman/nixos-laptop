@@ -88,6 +88,17 @@
     xwayland.enable = true;
   };
 
+  # Deploy Hyprland config from flake repo to /etc/hyprland.conf
+  environment.etc."hyprland.conf".source = ./hyprland.conf;
+
+  # Auto-link config to user's ~/.config/hypr/ on each rebuild
+  system.activationScripts.hyprland-config = ''
+    mkdir -p /home/mbhuman/.config/hypr
+    ln -sf /etc/hyprland.conf /home/mbhuman/.config/hypr/hyprland.conf
+    mkdir -p /home/mbhuman/Screenshots
+    chown mbhuman:users /home/mbhuman/.config/hypr /home/mbhuman/Screenshots
+  '';
+
   # Required for Hyprland to function properly (login, audio auth, etc.)
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
@@ -162,9 +173,12 @@
     grim            # Screenshot tool
     slurp           # Region selection
     wl-clipboard    # Clipboard manager
+    cliphist        # Clipboard history
     brightnessctl   # Screen brightness keys
     pamixer         # Volume control
+    pavucontrol     # Audio GUI
     networkmanagerapplet # Wi-Fi GUI
+    blueman         # Bluetooth GUI
 
     # === Editors ===
     vscode
