@@ -42,6 +42,25 @@
   hardware.bluetooth.enable = true;
 
   # ==========================================
+  # 4a. AUTO-MOUNT USB DRIVES & DISKS
+  # ==========================================
+  services.udisks2.enable = true;   # Auto-mount daemon
+  services.gvfs.enable = true;      # Virtual filesystem (Nautilus integration)
+  boot.supportedFilesystems = [ "ntfs" "exfat" "vfat" "ext4" "btrfs" "xfs" "zfs" "f2fs" "hfsplus" "udf" "cifs" "nfs" ];
+  # ntfs    — Windows NTFS
+  # exfat   — USB drives, SD cards (cross-platform)
+  # vfat    — FAT32 (legacy USB drives)
+  # ext4    — Linux standard
+  # btrfs   — Linux (snapshots, compression)
+  # xfs     — Linux (large storage)
+  # zfs     — Enterprise storage
+  # f2fs    — Flash-optimized (SSD, eMMC)
+  # hfsplus — macOS HFS+
+  # udf     — optical discs (DVD, Blu-ray)
+  # cifs    — Windows network shares (SMB)
+  # nfs     — Linux network shares
+
+  # ==========================================
   # 4b. WIREGUARD VPN
   # ==========================================
   # Install wireguard-tools for manual `wg-quick up/dn` usage
