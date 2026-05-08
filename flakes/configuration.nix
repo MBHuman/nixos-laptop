@@ -75,7 +75,9 @@
   # 6. FONTS (Nerd Fonts required for agnoster theme)
   # ==========================================
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "Meslo" "FiraCode" "JetBrainsMono" ]; })
+    meslo-lg
+    fira-code-nerdfont
+    jetbrains-mono-nerdfont
   ];
 
   # ==========================================
@@ -174,7 +176,7 @@
     google-chrome
 
     # === Messaging ===
-    tdesktop        # Telegram Desktop
+    telegram-desktop        # Telegram Desktop
 
     # === VPN ===
     wireguard-tools # wg-quick, wg CLI tools
