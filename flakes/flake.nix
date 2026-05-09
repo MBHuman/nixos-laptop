@@ -1,9 +1,8 @@
 {
   description = "NixOS config for Honor MagicBook X14 Pro";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.hyprland.url = "github:hyprwm/Hyprland";
 
   outputs = { self, nixpkgs, ... }@inputs:
   let

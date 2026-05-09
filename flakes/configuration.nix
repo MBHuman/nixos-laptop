@@ -3,6 +3,12 @@
 {
   imports = [ ./hardware-configuration.nix ]; # We will link this in Step 5!
 
+  documentation = {
+    nixos.enable = false;
+    doc.enable = false;
+    info.enable = false;
+    man.enable = true;
+  };
   # ==========================================
   # 1. NIX SETTINGS (flakes MUST be enabled!)
   # ==========================================
@@ -27,6 +33,55 @@
       libvdpau-va-gl
     ];
   };
+
+  # ==========================================
+  # 2a. KEYBOARD & TOUCHPAD (Honor MagicBook X14 Pro)
+  # ==========================================
+  # Keyboard: Honor laptops use PS/2 via i8042 but the controller is non-standard.
+  # Without these parameters, the keyboard is not detected at all.
+  #
+  #   i8042.nopnp=1    — skip ACPI PnP probe, use hardcoded I/O ports (60/64)
+  #   i8042.reset=1    — reset PS/2 controller at boot for clean state
+  #   i8042.dumbkbd=1  — treat keyboard as write-only (no ACK expected).
+  #                       Honor keyboard controller doesn't respond to PS/2 probe
+  #                       commands, so the driver thinks no keyboard is present.
+  #   i8042.noaux=1    — disable AUX port probing (no PS/2 mouse, avoids conflicts)
+  #
+  # Touchpad: I2C controllers (intel-lpss PCI 00:15.x) need ACPI _PRT to get IRQs.
+  # Honor firmware only populates proper _PRT entries when it detects Windows 10.
+  #   acpi_osi="Windows 2020" — add Windows 10 identity so _PRT is populated correctly.
+  #   NOTE: do NOT use "acpi_osi=!" — clearing identities breaks _PRT entirely.
+  boot.kernelParams = [
+    # Keyboard: Honor PS/2 controller doesn't respond to probes — treat as write-only
+    "i8042.nopnp=1"
+    "i8042.reset=1"
+    "i8042.dumbkbd=1"
+    "i8042.noaux=1"
+
+    # Touchpad/ACPI: Honor firmware only populates proper _PRT (IRQ routing) and WMI
+    # tables when it detects Windows. Without this, I2C controllers (intel-lpss),
+    # thermal sensors (WTEC.ECAV), and WMI methods (SMLS) all fail with unresolved symbols.
+    "acpi_osi=Windows 2020"
+  ];
+
+  # Touchpad: I2C HID device — must load all dependencies early for detection.
+  # Also load keyboard modules in initrd for early keyboard support (greetd login).
+  boot.initrd.kernelModules = [
+    # Keyboard (PS/2 via i8042)
+    "atkbd"                     # AT keyboard driver (uses serio layer)
+    "serio"                     # Serial I/O bus (used by atkbd/i8042)
+    "i8042"                     # PS/2 controller driver
+
+    # Touchpad (I2C HID)
+    "i2c_hid_acpi"              # ACPI glue for I2C HID devices (touchpad)
+    "i2c_hid"                   # Core I2C HID protocol driver
+    "i2c_designware_platform"   # DesignWare I2C bus controller (Intel SoC)
+    "i2c_designware_core"       # DesignWare I2C core library
+    "pinctrl_intel"             # Pin multiplexing for I2C pins
+    "intel_lpss_pci"            # Intel Low-Power Subsystem PCI driver
+    "hid_multitouch"            # Multitouch protocol for touchpads
+    "hid_generic"               # Generic HID driver
+  ];
 
   # ==========================================
   # 3. BOOTLOADER
@@ -104,7 +159,7 @@
   };
 
   # PulseAudio daemon — disabled, PipeWire handles everything
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
 
   # ==========================================
   # 5a. WEBCAM / VIDEO CAPTURE
@@ -150,7 +205,7 @@
   };
 
   # Expose hyprexpo plugin .so for Hyprland to load at runtime
-  environment.etc."hyprland-plugins/hyprexpo.so".source = "${pkgs.hyprlandPlugins.hyprexpo}/lib/libhyprexpo.so";
+  # environment.etc."hyprland-plugins/hyprexpo.so".source = "${pkgs.hyprlandPlugins.hyprexpo}/lib/libhyprexpo.so";
 
   # Cursor theme for all sessions
   environment.sessionVariables = {
@@ -242,7 +297,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd Hyprland";
         user = "greeter";
       };
     };
@@ -319,7 +374,7 @@
     dunst           # Notifications
     libnotify       # notify-send CLI (used by dunst)
     kitty           # Terminal emulator
-    rofi-wayland    # App launcher
+    rofi    # App launcher
     nautilus        # File manager
     jq              # JSON parser (for window screenshots)
 
@@ -468,6 +523,13 @@
   # 13. FIRMWARE UPDATES
   # ==========================================
   services.fwupd.enable = true;
+
+  # ==========================================
+  # 14. MODULE BLACKLIST
+  # ==========================================
+  # huawei-wmi: Honor firmware's WMI methods (SMLS, micmute LED) are broken on Linux.
+  # The module repeatedly fails and spams logs. Blacklist to silence errors.
+  boot.blacklistedKernelModules = [ "huawei_wmi" ];
 
   system.stateVersion = "24.05"; # Don't touch this
 }
